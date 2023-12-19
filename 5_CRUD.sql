@@ -7,7 +7,7 @@ VALUES
 VALUES
     (8, '2023-07-01', '2023-12-31', 'Ясность Утра', 'Насладитесь чаем "Ясность Утра" — зеленый чай с акцентами жасмина и персика, наполняющий моментами спокойствия под утренним солнцем.', 900);
    
--- oops, the same tea was added twice, let's delete the dublicate 
+-- oops, the same tea was added twice, let's delete the duplicate 
    DELETE
 FROM
 	PRODUCT
