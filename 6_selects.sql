@@ -3,10 +3,10 @@ SET search_path = project, PUBLIC;
 -- Выведите для каждого клиента в алфавитном порядке (Фамилия, Имя), не используя 
 -- поле cost, суммарное количество потраченных денег.
 
-select 
-	c.last_name,
-	c.first_name,
-	coalesce(max(p.price * op.quantity), 0) as total_spent
+select distinct 
+	c.customer_id, 
+	c.last_name || ' ' || c.first_name as customer_name,
+	coalesce(max(p.price * op.quantity) over (partition by c.customer_id), 0) as total_spent
 from 
 	"order" o
 right join 
@@ -19,12 +19,8 @@ left join
 	product p
 		on op.product_id = p.product_id 
 		and o.date between p.valid_from and p.valid_to
-group by 
-	c.first_name, 
-	c.last_name
 order by 
-	c.last_name, 
-	c.first_name;
+	c.customer_id;
 
 -- Выведите те товары, которых на данный момент доступно больше 200 
 -- единиц суммарно на всех складах.
