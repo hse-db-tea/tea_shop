@@ -1,3 +1,5 @@
+-- trigger to update quantity of the product when a new row is 
+-- added to the order_x_product table
 CREATE OR REPLACE FUNCTION warehouse_update()
 RETURNS TRIGGER AS $$
 DECLARE 
@@ -25,8 +27,33 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
-
-CREATE or replace TRIGGER warehouse_update_trigger
+CREATE OR REPLACE  TRIGGER warehouse_update_trigger
 BEFORE INSERT ON order_x_product
 FOR EACH ROW
 EXECUTE FUNCTION warehouse_update();
+
+-- trigger to update order cost when a new row is added to 
+-- the order_x_product table
+CREATE OR REPLACE FUNCTION order_update()
+RETURNS TRIGGER AS $$
+DECLARE 
+	order_date timestamp;
+	product_price Integer;
+	old_cost Integer;
+BEGIN
+	order_date := (SELECT "date" FROM "order" WHERE order_id = NEW.order_id)::timestamp;
+	product_price := (SELECT price FROM product WHERE product_id = NEW.product_id AND order_date BETWEEN valid_from AND valid_to);
+	old_cost := (select "cost" from "order" where order_id = new.order_id);
+	UPDATE 
+    	"order"
+    SET 
+    	"cost" = (select old_cost + product_price * new.quantity)
+    WHERE 
+    	order_id = new.order_id;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+CREATE OR REPLACE TRIGGER order_update_trigger
+AFTER INSERT ON order_x_product
+FOR EACH ROW
+EXECUTE FUNCTION order_update();
