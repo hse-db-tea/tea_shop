@@ -67,7 +67,7 @@ CREATE TABLE product_x_warehouse(
   	warehouse_id Integer REFERENCES warehouse(warehouse_id),
   	valid_from TIMESTAMP,
  	valid_to TIMESTAMP,
-  	quantity INTEGER CHECK(quantity > 0),
+  	quantity INTEGER CHECK(quantity >= 0),
   	PRIMARY KEY(product_id, warehouse_id, valid_from)
 ); 
 
