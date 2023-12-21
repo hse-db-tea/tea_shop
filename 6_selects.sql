@@ -6,7 +6,7 @@ SET search_path = project, PUBLIC;
 select 
 	c.last_name,
 	c.first_name,
-	coalesce(sum(p.price), 0) as total_spent
+	coalesce(max(p.price * op.quantity), 0) as total_spent
 from 
 	"order" o
 right join 
@@ -137,7 +137,6 @@ select distinct
     c.customer_id AS customer_id,
     c.first_name || ' ' || c.last_name AS customer_name,
     coalesce(sum(p.price * oxp.quantity) over (PARTITION BY c.customer_id ORDER BY d."date"), 0)
-    --SUM(p.price) OVER (PARTITION BY c.id ORDER BY d.order_date) AS running_total
 FROM
     (SELECT DISTINCT "date" FROM "order") d
 CROSS JOIN
@@ -147,6 +146,6 @@ LEFT JOIN
 LEFT JOIN
     order_x_product oxp ON o.order_id = oxp.order_id
 LEFT JOIN
-    product p ON oxp.product_id = p.product_id
+    product p ON oxp.product_id = p.product_id and o."date" between p.valid_from and p.valid_to 
 ORDER BY
     d."date", c.customer_id;
