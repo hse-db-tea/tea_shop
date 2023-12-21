@@ -128,3 +128,25 @@ select distinct
 	last_name
 from
 	client_teas;
+
+-- Вывести нарастающим итогом сумму заказов для каждого покупателя. 
+-- В итоге на каждую дату в таблице для каждого покупателя должна быть одна строка, в которой 
+-- отражена сумма его заказов на эту дату.
+select distinct
+    d."date",
+    c.customer_id AS customer_id,
+    c.first_name || ' ' || c.last_name AS customer_name,
+    coalesce(sum(p.price * oxp.quantity) over (PARTITION BY c.customer_id ORDER BY d."date"), 0)
+    --SUM(p.price) OVER (PARTITION BY c.id ORDER BY d.order_date) AS running_total
+FROM
+    (SELECT DISTINCT "date" FROM "order") d
+CROSS JOIN
+    customer c
+LEFT JOIN
+    "order" o ON d."date" = o."date" AND c.customer_id = o.customer_id
+LEFT JOIN
+    order_x_product oxp ON o.order_id = oxp.order_id
+LEFT JOIN
+    product p ON oxp.product_id = p.product_id
+ORDER BY
+    d."date", c.customer_id;
