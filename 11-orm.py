@@ -20,8 +20,8 @@ class Product(base):
     contents       = sqlalchemy.Column(sqlalchemy.String)
     price          = sqlalchemy.Column(sqlalchemy.Integer)
 
-factory = sqlalchemy.orm.sessionmaker(bind=engine)
-session = factory()
+shop = sqlalchemy.orm.sessionmaker(bind=engine)
+session = shop()
 
 insert_product = Product(
     product_id=8, 
