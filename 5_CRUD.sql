@@ -21,7 +21,7 @@ SET
 WHERE
 	PRODUCT_ID = 7;
 -- see which tea is more expensive than the new one
-SELECT "name", price
+SELECT "name", price, valid_from, valid_to
 FROM
 	PRODUCT
 WHERE
