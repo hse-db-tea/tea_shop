@@ -125,23 +125,44 @@ select distinct
 from
 	client_teas;
 
--- Вывести нарастающим итогом сумму заказов для каждого покупателя. 
+-- Вывести нарастающим итогом сумму заказов для каждого покупателя за последний год. 
 -- В итоге на каждую дату в таблице для каждого покупателя должна быть одна строка, в которой 
 -- отражена сумма его заказов на эту дату.
 select distinct
     d."date",
-    c.customer_id AS customer_id,
-    c.first_name || ' ' || c.last_name AS customer_name,
-    coalesce(sum(p.price * oxp.quantity) over (PARTITION BY c.customer_id ORDER BY d."date"), 0)
-FROM
-    (SELECT DISTINCT "date" FROM "order") d
-CROSS JOIN
+    c.customer_id as customer_id,
+    c.first_name || ' ' || c.last_name as customer_name,
+    coalesce(sum(o.cost) over (partition by c.customer_id order by d."date"), 0)
+from
+    (select distinct "date" from "order") d
+cross join
     customer c
-LEFT JOIN
-    "order" o ON d."date" = o."date" AND c.customer_id = o.customer_id
-LEFT JOIN
-    order_x_product oxp ON o.order_id = oxp.order_id
-LEFT JOIN
-    product p ON oxp.product_id = p.product_id and o."date" between p.valid_from and p.valid_to 
-ORDER BY
+left join
+    "order" o on d."date" = o."date" and c.customer_id = o.customer_id
+where 
+	d."date" >= current_timestamp - interval '1 year'
+order by
     d."date", c.customer_id;
+
+-- Для каждой службы доставки вывести сумму стоимостей доставленных заказов, процент суммы доставленных
+-- от суммы стоимостей доставленных заказов во всем магазине и максимальный по стоимости доставленный заказ
+with sum_by_delivery as (select distinct 
+	ds.delivery_service_id,
+	ds."name" as delivery_name,
+	coalesce(sum(o."cost") over (partition by ds.delivery_service_id), 0) as total_sum_delivered,
+	coalesce(max(o."cost") over (partition by ds.delivery_service_id), 0) as max_order_delivered
+from 
+	delivery_service ds 
+left join
+	"order" o 
+		on o.delivery_service_id = ds.delivery_service_id and o.status = 'Доставлен')
+select 
+	sbd.delivery_service_id,
+	sbd.delivery_name,
+	sbd.total_sum_delivered,
+	sbd.max_order_delivered,
+	round((sbd.total_sum_delivered / greatest(sum(sbd.total_sum_delivered) over (), 1)) * 100, 3) as percent_of_total
+from 
+	sum_by_delivery as sbd
+order by
+	percent_of_total desc
