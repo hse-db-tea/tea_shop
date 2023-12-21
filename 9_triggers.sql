@@ -27,6 +27,6 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE or replace TRIGGER warehouse_update_trigger
-AFTER INSERT ON order_x_product
+BEFORE INSERT ON order_x_product
 FOR EACH ROW
 EXECUTE FUNCTION warehouse_update();
