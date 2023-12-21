@@ -58,18 +58,22 @@ VALUES
     (6, 1, 3, 'В сборке', '2023-12-10 14:15:27', 1300, 'ул. Толстого, Дом 90', 3, 'Самовывоз');
 
 -- order_x_product
-INSERT INTO order_x_product (order_id, product_id, warehouse_id, quantity)
-VALUES
-    (1, 3, 1, 2),
-    (2, 1, 2, 4),
-    (2, 3, 1, 1),
-    (3, 2, 3, 3),
-    (3, 3, 2, 2),
-    (4, 1, 3, 5),
-    (4, 2, 2, 2),
-    (5, 3, 1, 3),
-    (5, 1, 2, 4),
-    (5, 2, 3, 1);
+INSERT INTO order_x_product (order_id, product_id, warehouse_id, quantity) VALUES (1, 3, 4, 2);
+
+INSERT INTO order_x_product (order_id, product_id, warehouse_id, quantity) VALUES (2, 1, 2, 4);
+INSERT INTO order_x_product (order_id, product_id, warehouse_id, quantity) VALUES (2, 3, 4, 1);
+
+INSERT INTO order_x_product (order_id, product_id, warehouse_id, quantity) VALUES (3, 2, 3, 3);
+INSERT INTO order_x_product (order_id, product_id, warehouse_id, quantity) VALUES (3, 3, 4, 2);
+    
+INSERT INTO order_x_product (order_id, product_id, warehouse_id, quantity) VALUES (4, 1, 1, 5);
+INSERT INTO order_x_product (order_id, product_id, warehouse_id, quantity) VALUES (4, 2, 2, 2);
+    
+INSERT INTO order_x_product (order_id, product_id, warehouse_id, quantity) VALUES (5, 3, 4, 3);
+INSERT INTO order_x_product (order_id, product_id, warehouse_id, quantity) VALUES (5, 1, 2, 4);
+INSERT INTO order_x_product (order_id, product_id, warehouse_id, quantity) VALUES (5, 2, 3, 1);
+
+INSERT INTO order_x_product (order_id, product_id, warehouse_id, quantity) VALUES (6, 4, 1, 1);
 
 -- product_x_warehouse
 INSERT INTO product_x_warehouse (product_id, warehouse_id, valid_from, valid_to, quantity)
