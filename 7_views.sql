@@ -1,7 +1,7 @@
 drop schema if exists project_views cascade;
 create schema project_views;
 
-set search_path = views, public;
+set search_path = project_views, public;
 
 
 -- представление складов
@@ -54,7 +54,7 @@ from project.delivery_service as d;
 
 
 -- представление заказ_x_продукт
-drop view if exists v_order_product;
+drop view if exists v_order_x_product;
 create view v_order_x_product as
 select o.date                                                  as "Дата заказа",
        c.first_name || ' ' || substr(c.last_name, 1, 1) || '.' as "Заказчик",
