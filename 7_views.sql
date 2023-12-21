@@ -1,5 +1,5 @@
-drop schema if exists views cascade;
-create schema views;
+drop schema if exists project_views cascade;
+create schema project_views;
 
 set search_path = views, public;
 
