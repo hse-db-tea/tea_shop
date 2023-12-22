@@ -43,32 +43,43 @@ $$;
 call order_product(3, 1, 200);
 
 
--- generates a slice for a certain time period
-drop procedure if exists timeslice(in t_from timestamp, in t_to timestamp, in t_name text);
-create procedure timeslice(in t_from timestamp, in t_to timestamp, in t_name text)
+drop procedure if exists cancel_order(in o_id int);
+create procedure cancel_order(in o_id int)
     language plpgsql as
 $$
 declare
-
+    row  RECORD;
+    prev integer;
+    cur  timestamp;
 begin
-    execute format('create schema if not exists %I;', t_name);
-    execute format(
-            'create table if not exists %I.order as select * from project.order as o where o.date between ''%I'' and ''%I'';',
-            t_name, t_from, t_to);
-    execute format('create table if not exists %I.customer as select * from project.customer', t_name);
-    execute format(
-            'create table if not exists %I.order_x_product as select * from project.order_x_product as oxp where oxp.order_id in (select order_id from %I.order)',
-            t_name, t_name);
-    execute format(
-            'create table if not exists %I.product as select * from project.product as p where (p.valid_from < ''%I'' and p.valid_to > ''%I'') or (p.valid_from >= ''%I'' and p.valid_from <= ''%I'')',
-            t_name, t_from, t_from, t_from, t_to);
-    execute format(
-            'create table if not exists %I.product_x_warehouse as select * from project.product_x_warehouse as pxw where pxw.product_id in (select product_id from %I.product) and ((pxw.valid_from < ''%I'' and pxw.valid_to > ''%I'') or (pxw.valid_from >= ''%I'' and pxw.valid_from <= ''%I''))',
-            t_name, t_name, t_from, t_from, t_from, t_to);
+    if o_id not in (select order_id from project.order) then
+        raise exception 'ORDER NOT FOUND';
+    end if;
+    if (select status from project.order where order_id = o_id) = 'Доставлен' then
+        raise exception 'ORDER IS ALREADY DELIVERED';
+    end if;
+    update project.order set status = 'Отменен' where order_id = o_id;
+    for row in select * from order_x_product as oxp where oxp.order_id = o_id
+        loop
+            prev := (select quantity
+                     from product_x_warehouse
+                     where product_id = row.product_id
+                       and valid_to = '5999-12-31 23:59:59.000000'
+                       and warehouse_id = row.warehouse_id);
+
+            cur = CURRENT_TIMESTAMP;
+
+            update product_x_warehouse
+            set valid_to = cur
+            where product_id = row.product_id
+              and valid_to = '5999-12-31 23:59:59.000000';
+
+            insert into product_x_warehouse(product_id, warehouse_id, valid_from, valid_to, quantity)
+            values (row.product_id, row.warehouse_id, cur, '5999-12-31 23:59:59.000000',
+                    prev + row.quantity);
+        end loop;
+    delete from order_x_product where order_id = o_id;
 end;
 $$;
 
-
-drop schema if exists test cascade;
-call timeslice('2023-01-01 00:00:00.000000', '2024-01-01 00:00:000000', 'this_year');
-
+call cancel_order(5);
