@@ -43,7 +43,7 @@ CREATE TABLE "order" (
 	order_id Integer,
   	customer_id Integer,
   	delivery_service_id Integer REFERENCES delivery_service(delivery_service_id),
-  	status varchar(20) CHECK(status IN ('Принят', 'В сборке', 'Ожидает доставки', 'Передан курьеру', 'Доставлен')),
+  	status varchar(20) CHECK(status IN ('Принят', 'В сборке', 'Ожидает доставки', 'Передан курьеру', 'Доставлен', 'Отменен')),
   	"date" timestamp,
   	"cost" Integer default 0, -- will be a trigger to automatically increment the price
   	address text,
