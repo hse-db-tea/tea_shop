@@ -67,7 +67,8 @@ from project.order_x_product as oxp
          inner join project.order as o on o.order_id = oxp.order_id
          inner join project.customer as c on o.customer_id = c.customer_id
          inner join project.warehouse as w on oxp.warehouse_id = w.warehouse_id
-         inner join project.product as p on oxp.product_id = p.product_id;
+         inner join project.product as p
+                    on oxp.product_id = p.product_id and (o.date between p.valid_from and p.valid_to);
 
 
 -- представление продукт_x_склад
