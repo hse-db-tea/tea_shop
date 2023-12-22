@@ -4,14 +4,14 @@ create schema project_views;
 set search_path = project_views, public;
 
 
--- представление складов
+-- warehouse view
 drop view if exists v_warehouse;
 create view v_warehouse as
 select address as "адрес"
 from project.warehouse;
 
 
--- представление заказчиков, маскируются фамилия и номер телефона
+-- customer view, last names and phone numbers are masked
 drop view if exists v_customer;
 create view v_customer as
 select first_name                                                                              as "Имя",
@@ -20,7 +20,7 @@ select first_name                                                               
 from project.customer;
 
 
--- представление заказов, маскируются фамилии заказчиков
+-- order view, customers' last names are masked
 drop view if exists v_order;
 create view v_order as
 select o.date                                                  as "Дата заказа",
@@ -35,7 +35,7 @@ from project.order as o
          left join project.delivery_service as d on o.delivery_service_id = d.delivery_service_id;
 
 
--- представление продуктов, отображаются только актуальные записи
+-- product view, irrelevant data is hidden
 drop view if exists v_product;
 create view v_product as
 select p.name as "Название", p.contents as "Описание", p.price as "Цена", p.valid_from as "Последнее обновление"
@@ -43,7 +43,7 @@ from project.product as p
 where valid_to = '5999-12-31 23:59:59.000000';
 
 
--- представление служб доставок, маскируются номера телефонов
+-- delivery services view, phone number are masked
 drop view if exists v_delivery_service;
 create view v_delivery_service as
 select d.name                                                                                        as "Название",
@@ -53,7 +53,7 @@ select d.name                                                                   
 from project.delivery_service as d;
 
 
--- представление заказ_x_продукт
+-- order_x_product view
 drop view if exists v_order_x_product;
 create view v_order_x_product as
 select o.date                                                  as "Дата заказа",
@@ -71,7 +71,7 @@ from project.order_x_product as oxp
                     on oxp.product_id = p.product_id and (o.date between p.valid_from and p.valid_to);
 
 
--- представление продукт_x_склад
+-- product_x_warehouse view
 drop view if exists v_product_x_warehouse;
 create view v_product_x_warehouse as
 select pxw.valid_from as "Дата обновления", p.name as "Товар", w.address as "Склад", pxw.quantity as "Количество"
