@@ -165,4 +165,4 @@ select
 from 
 	sum_by_delivery as sbd
 order by
-	percent_of_total desc
+	percent_of_total desc;
