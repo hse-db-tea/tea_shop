@@ -1,5 +1,6 @@
 set search_path = project, public;
 
+-- adds a product to an order
 drop procedure if exists order_product(in o_id int, in p_id int, in q int);
 create procedure order_product(in o_id int, in p_id int, in q int)
     language plpgsql as
@@ -42,6 +43,7 @@ $$;
 call order_product(3, 1, 200);
 
 
+-- generates a slice for a certain time period
 drop procedure if exists timeslice(in t_from timestamp, in t_to timestamp, in t_name text);
 create procedure timeslice(in t_from timestamp, in t_to timestamp, in t_name text)
     language plpgsql as
